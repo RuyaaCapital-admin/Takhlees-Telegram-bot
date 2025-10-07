@@ -1,0 +1,5 @@
+service_id,public_price_usd,gov_fees_usd,notes
+civil_individual_extract,,,quote_after_review
+civil_family_extract,,,quote_after_review
+judicial_criminal_record,,,quote_after_review
+sworn_translation,,,quote_after_review

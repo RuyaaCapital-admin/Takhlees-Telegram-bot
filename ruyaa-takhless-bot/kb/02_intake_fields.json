@@ -1,0 +1,14 @@
+[
+  {"key":"full_name_ar","label_ar":"الاسم الثلاثي","required":true},
+  {"key":"father_name","label_ar":"اسم الأب","required":true},
+  {"key":"mother_name","label_ar":"اسم الأم","required":true},
+  {"key":"dob","label_ar":"تاريخ الميلاد (YYYY-MM-DD)","required":true},
+  {"key":"pob","label_ar":"مكان الميلاد","required":true},
+  {"key":"registration_place","label_ar":"مكان القيد/السجل","required":true},
+  {"key":"national_number","label_ar":"الرقم الوطني","required":false},
+  {"key":"document_type","label_ar":"نوع الوثيقة","required":true},
+  {"key":"purpose","label_ar":"الغاية/الجهة الطالبة","required":true},
+  {"key":"delivery_country","label_ar":"بلد التسليم","required":true},
+  {"key":"delivery_mode","label_ar":"طريقة التسليم (digital|original)","required":true},
+  {"key":"attachments","label_ar":"مرفقات داعمة","required":false}
+]

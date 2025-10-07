@@ -1,0 +1,10 @@
+{
+  "MENA": {"digital_copy_allowed": "review_required", "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "EU": {"digital_copy_allowed": true, "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "UK": {"digital_copy_allowed": true, "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "TR": {"digital_copy_allowed": true, "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "NA": {"digital_copy_allowed": true, "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "AU": {"digital_copy_allowed": true, "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "ASIA": {"digital_copy_allowed": "review_required", "original_allowed": true, "kyc_needed": "id_or_passport", "restrictions": []},
+  "Unknown": {"digital_copy_allowed": "review_required", "original_allowed": "review_required", "kyc_needed": "review_required", "restrictions": ["review_required"]}
+}

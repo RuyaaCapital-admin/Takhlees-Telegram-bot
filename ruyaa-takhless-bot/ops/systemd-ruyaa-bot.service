@@ -1,0 +1,12 @@
+[Unit]
+Description=Ruyaa Takhless Telegram Bot
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/ruyaa-takhless-bot
+ExecStart=/opt/ruyaa-takhless-bot/.venv/bin/python bot.py
+Restart=always
+Environment=BOT_TOKEN=REPLACE ADMIN_IDS=REPLACE
+
+[Install]
+WantedBy=multi-user.target
