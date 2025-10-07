@@ -75,7 +75,7 @@ class Intake(StatesGroup):
     delivery_mode = State()
 
 # ===== Handlers =====
-@dp.message(Command("start"))
+@dp.message(CommandStart())
 async def start_cmd(m: types.Message):
     await m.answer(short("أهلين! شو الخدمة اللي بدك تنجزها؟"), reply_markup=main_menu_kb())
 
@@ -179,6 +179,9 @@ async def cb_status(c: types.CallbackQuery):
 @dp.callback_query(F.data == "menu_subscribe")
 async def cb_subscribe(c: types.CallbackQuery):
     await subscribe_cmd(c.message); await c.answer()
+@dp.message()
+async def fallback(m: types.Message):
+    await m.answer("اكتب /start لتبلّش أو استخدم الأزرار.")
 
 # ===== Run =====
 async def main():
