@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "ruyaa-takhless-bot/api/telegram.py": { "maxDuration": 10 }
+  }
+}

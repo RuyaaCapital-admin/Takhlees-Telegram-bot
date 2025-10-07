@@ -1,6 +1,6 @@
 import os, time, asyncio
 from dotenv import load_dotenv
-import aiosqlite
+from storage import init as storage_init, add_sub, del_sub, list_sub_ids, new_request, recent_requests
 
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.client.default import DefaultBotProperties
@@ -28,22 +28,7 @@ dp = Dispatcher()
 
 # ===== DB =====
 async def init_db():
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""CREATE TABLE IF NOT EXISTS subscribers(
-            chat_id INTEGER PRIMARY KEY,
-            first_name TEXT,
-            ts INTEGER
-        )""")
-        await db.execute("""CREATE TABLE IF NOT EXISTS requests(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            chat_id INTEGER,
-            doc_type TEXT,
-            delivery_country TEXT,
-            delivery_mode TEXT,
-            ts INTEGER,
-            status TEXT
-        )""")
-        await db.commit()
+    await storage_init()
 
 # ===== Bot Commands in UI (optional) =====
 async def set_bot_commands():
@@ -111,17 +96,12 @@ async def privacy_cmd(m: types.Message):
 
 @dp.message(Command("subscribe"))
 async def subscribe_cmd(m: types.Message):
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("INSERT OR REPLACE INTO subscribers(chat_id, first_name, ts) VALUES(?,?,?)",
-                         (m.chat.id, m.from_user.first_name or "", int(time.time())))
-        await db.commit()
+    await add_sub(m.chat.id, m.from_user.first_name or "")
     await m.answer(short("تم الاشتراك. بتوصلك تحديثات قصيرة."))
 
 @dp.message(Command("unsubscribe"))
 async def unsubscribe_cmd(m: types.Message):
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("DELETE FROM subscribers WHERE chat_id= ?", (m.chat.id,))
-        await db.commit()
+    await del_sub(m.chat.id)
     await m.answer(short("تم الإلغاء."))
 
 # Admin broadcast
@@ -135,10 +115,8 @@ async def broadcast_cmd(m: types.Message):
         return
     msg = payload[1].strip()
     sent, fail = 0, 0
-    async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute("SELECT chat_id FROM subscribers") as cur:
-            rows = await cur.fetchall()
-    for (chat_id,) in rows:
+    ids = await list_sub_ids()
+    for chat_id in ids:
         try:
             await bot.send_message(chat_id, msg)
             sent += 1
@@ -170,30 +148,17 @@ async def intake_done(m: types.Message, state: FSMContext):
     doc_type = data["doc_type"]
     country = data["delivery_country"]
     mode = m.text.strip()
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute(
-            "INSERT INTO requests(chat_id, doc_type, delivery_country, delivery_mode, ts, status) "
-            "VALUES (?,?,?,?,?,?)",
-            (m.chat.id, doc_type, country, mode, int(time.time()), "new")
-        )
-        await db.commit()
-        cur = await db.execute("SELECT last_insert_rowid()")
-        req_id = (await cur.fetchone())[0]
+    req_id = await new_request(m.chat.id, doc_type, country, mode)
     await state.clear()
     await m.answer(short(f"تم فتح طلبك رقم #{req_id}. الوقت والتكلفة بيتأكدوا بعد المراجعة."))
 
 @dp.message(Command("status"))
 async def status_cmd(m: types.Message):
-    async with aiosqlite.connect(DB_PATH) as db:
-        async with db.execute(
-            "SELECT id, doc_type, status FROM requests WHERE chat_id=? ORDER BY id DESC LIMIT 3",
-            (m.chat.id,)
-        ) as cur:
-            rows = await cur.fetchall()
+    rows = await recent_requests(m.chat.id, 3)
     if not rows:
         await m.answer(short("ما في طلبات. فيك تبدأ بـ /request"))
     else:
-        lines = [f"#{r[0]} • {r[1]} • {r[2]}" for r in rows]
+        lines = [f"#{r['id']} • {r['doc_type']} • {r['status']}" for r in rows]
         await m.answer("آخر الطلبات:\n" + "\n".join(lines))
 
 # Menu callbacks
