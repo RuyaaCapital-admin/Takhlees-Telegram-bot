@@ -1,0 +1,14 @@
+# render.yaml — deploy a background worker for the Telegram bot
+services:
+  - type: worker
+    name: ruyaa-telegram-bot
+    env: python
+    plan: starter        # worker requires a paid plan; free web services won't run a worker
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false      # set in dashboard
+      - key: ADMIN_IDS
+        sync: false
