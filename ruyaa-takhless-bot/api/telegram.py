@@ -1,11 +1,7 @@
-# ruyaa-takhless-bot/api/telegram.py
-import os
 from fastapi import FastAPI, Request
 from aiogram.types import Update
-
-# IMPORTANT: use module names without hyphens
-from bot import bot as tg_bot, dp, set_bot_commands
-from storage import init as storage_init  # uses REDIS_URL or DB_PATH fallback
+from bot import bot as tg_bot, dp, set_bot_commands   # no hyphens in module names
+from storage import init as storage_init              # Redis or SQLite fallback
 
 app = FastAPI()
 
