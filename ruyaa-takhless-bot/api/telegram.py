@@ -10,18 +10,24 @@ async def on_startup():
     await storage_init()          # uses REDIS_URL or DB_PATH=/tmp/bot.db
     await set_bot_commands()
 
-async def _handle(request: Request):
+async def _process(request: Request):
     raw = await request.body()
-    update = Update.model_validate_json(raw)
-    await dp.feed_update(tg_bot, update)
+    if not raw:
+        return {"ok": True}
+    try:
+        update = Update.model_validate_json(raw)
+        await dp.feed_update(tg_bot, update)   # safe: no raise if no handler
+    except Exception as e:
+        # swallow all to avoid 500s on Vercel
+        print("webhook_error:", repr(e))
     return {"ok": True}
 
-# Accept all possible paths Vercel might forward
+# accept any path Vercel might hit
 @app.post("/")
-async def root(request: Request):            return await _handle(request)
-
+async def root(request: Request):                return await _process(request)
 @app.post("/api/telegram")
-async def api_no_slash(request: Request):    return await _handle(request)
-
+async def api1(request: Request):                return await _process(request)
 @app.post("/api/telegram/")
-async def api_with_slash(request: Request):  return await _handle(request)
+async def api2(request: Request):                return await _process(request)
+@app.post("/{path:path}")
+async def catch_all(request: Request, path: str):return await _process(request)
