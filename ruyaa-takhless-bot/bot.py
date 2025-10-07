@@ -163,6 +163,7 @@ async def status_cmd(m: types.Message):
         await m.answer("آخر الطلبات:\n" + "\n".join(lines))
 
 # Menu callbacks
+
 @dp.callback_query(F.data == "menu_services")
 async def cb_services(c: types.CallbackQuery):
     await c.message.answer(SERVICES_TXT); await c.answer()
@@ -182,6 +183,24 @@ async def cb_subscribe(c: types.CallbackQuery):
 @dp.message()
 async def fallback(m: types.Message):
     await m.answer("اكتب /start لتبلّش أو استخدم الأزرار.")
+@dp.callback_query()
+async def cb_any(c: types.CallbackQuery, state: FSMContext):
+    d = (c.data or "").strip()
+    # debug log in Vercel
+    print("cb:", d)
+
+    if d == "menu_services":
+        await c.message.answer(SERVICES_TXT)
+    elif d == "menu_request":
+        await state.set_state(Intake.doc_type)
+        await c.message.answer("نوع الوثيقة؟")
+    elif d == "menu_status":
+        await status_cmd(c.message)
+    elif d == "menu_subscribe":
+        await subscribe_cmd(c.message)
+    else:
+        await c.message.answer("تمام.")
+    await c.answer()
 
 # ===== Run =====
 async def main():
