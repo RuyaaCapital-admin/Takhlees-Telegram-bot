@@ -1,8 +1,11 @@
+# ruyaa-takhless-bot/api/telegram.py
 import os
 from fastapi import FastAPI, Request
 from aiogram.types import Update
-from ruyaa-takhless-bot.bot import bot, dp, set_bot_commands
-from ruyaa-takhless-bot.storage import init as storage_init
+
+# IMPORTANT: use module names without hyphens
+from bot import bot as tg_bot, dp, set_bot_commands
+from storage import init as storage_init  # uses REDIS_URL or DB_PATH fallback
 
 app = FastAPI()
 
@@ -15,5 +18,5 @@ async def on_startup():
 async def telegram_webhook(request: Request):
     raw = await request.body()
     update = Update.model_validate_json(raw)
-    await dp.feed_update(bot, update)
+    await dp.feed_update(tg_bot, update)
     return {"ok": True}
